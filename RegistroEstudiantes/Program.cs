@@ -32,14 +32,11 @@ var app = builder.Build();
 // Pipeline HTTP
 // =======================
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.DocumentTitle = "Registro de Estudiantes API";
-    });
-}
+    options.DocumentTitle = "Registro de Estudiantes API";
+});
 
 app.UseHttpsRedirection();
 
