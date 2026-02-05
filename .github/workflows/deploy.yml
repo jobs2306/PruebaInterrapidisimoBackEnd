@@ -1,0 +1,47 @@
+name: Deploy RegistroEstudiantes API
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                dotnet-version: '9.0.x'
+
+            - name: Restore dependencies
+              run: dotnet restore RegistroEstudiantes/RegistroEstudiantes.csproj
+
+            - name: Build
+              run: dotnet build RegistroEstudiantes/RegistroEstudiantes.csproj --configuration Release --no-restore
+
+            - name: Publish
+              run: dotnet publish RegistroEstudiantes/RegistroEstudiantes.csproj -c Release -o publish
+
+            - name: Deploy to VPS
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                host: ${{ secrets.VPS_HOST }}
+                username: ${{ secrets.VPS_USER }}
+                key: ${{ secrets.SSH_PRIVATE_KEY }}
+                source: "publish/*"
+                target: "/var/www/registroestudiantes"
+                strip_components: 1
+
+            - name: Restart API service
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                host: ${{ secrets.VPS_HOST }}
+                username: ${{ secrets.VPS_USER }}
+                key: ${{ secrets.SSH_PRIVATE_KEY }}
+                script: |
+                    sudo systemctl restart registroestudiantes-api
+                    sudo systemctl status registroestudiantes-api --no-pager
