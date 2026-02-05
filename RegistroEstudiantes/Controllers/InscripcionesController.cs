@@ -44,7 +44,7 @@
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.NotFound)]
-        //[ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> InscribirMateria([FromBody] DtoEntradaInscribirMateria dto)
         {
@@ -61,6 +61,10 @@
             catch (NotFoundException ex)
             {
                 return ApiRespuestaUtil.Convertir(ApiRespuestaHttp<string>.RespuestaFallida(ex.Message, HttpStatusCode.NotFound));
+            }
+            catch (UnauthorizedException)
+            {
+                return ApiRespuestaUtil.Convertir(ApiRespuestaHttp<string>.RespuestaFallida("No está autorizado", HttpStatusCode.Unauthorized));
             }
             catch (Exception)
             {
