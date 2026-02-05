@@ -1,4 +1,4 @@
-﻿namespace RegistroEstudiantes.Aplicacion.Servicios.Interface
+﻿namespace RegistroEstudiantes.Aplicacion.Servicios
 {
     using Microsoft.EntityFrameworkCore;
     using RegistroEstudiantes.Aplicacion.Dtos.Materia;

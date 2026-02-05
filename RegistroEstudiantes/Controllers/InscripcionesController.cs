@@ -1,10 +1,11 @@
 ﻿namespace RegistroEstudiantes.Controllers
 {
     using System.Net;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using RegistroEstudiantes.Aplicacion.Dtos.Materia;
     using RegistroEstudiantes.Aplicacion.Respuestas;
-    using RegistroEstudiantes.Aplicacion.Servicios.Interface;
+    using RegistroEstudiantes.Aplicacion.Servicios;
     using RegistroEstudiantes.Dominio.Excepciones;
 
     /// <summary>
@@ -39,6 +40,7 @@
         /// <response code="401">Si no está autenticado.</response>
         /// <response code="500">Si ocurrio una falla o errror NO controlado</response>
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.NotFound)]
