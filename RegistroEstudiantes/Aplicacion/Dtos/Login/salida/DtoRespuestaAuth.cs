@@ -1,4 +1,4 @@
-﻿namespace RegistroEstudiantes.Aplicacion.Dtos.Login
+﻿namespace RegistroEstudiantes.Aplicacion.Dtos.Login.salida
 {
     /// <summary>
     /// Dto de respuesta de autorizacion
@@ -9,6 +9,11 @@
         /// Token de respuesta auth
         /// </summary>
         public string Token { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Nombre del usuario
+        /// </summary>
+        public string Nombre { get; set; } = string.Empty;
 
         /// <summary>
         /// Fecha de expiracion del token

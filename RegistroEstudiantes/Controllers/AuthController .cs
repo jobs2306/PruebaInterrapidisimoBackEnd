@@ -2,7 +2,8 @@
 {
     using System.Net;
     using Microsoft.AspNetCore.Mvc;
-    using RegistroEstudiantes.Aplicacion.Dtos.Login;
+    using RegistroEstudiantes.Aplicacion.Dtos.Login.Entrada;
+    using RegistroEstudiantes.Aplicacion.Dtos.Login.salida;
     using RegistroEstudiantes.Aplicacion.Respuestas;
     using RegistroEstudiantes.Aplicacion.Servicios;
     using RegistroEstudiantes.Dominio.Excepciones;

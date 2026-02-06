@@ -1,4 +1,4 @@
-﻿namespace RegistroEstudiantes.Aplicacion.Dtos.Login
+﻿namespace RegistroEstudiantes.Aplicacion.Dtos.Login.Entrada
 {
     /// <summary>
     /// Dto para el login de un usuario

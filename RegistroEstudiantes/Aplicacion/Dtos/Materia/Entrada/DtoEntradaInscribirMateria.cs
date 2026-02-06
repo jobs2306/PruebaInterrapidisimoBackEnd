@@ -1,4 +1,4 @@
-﻿namespace RegistroEstudiantes.Aplicacion.Dtos.Materia
+﻿namespace RegistroEstudiantes.Aplicacion.Dtos.Materia.Entrada
 {
     /// <summary>
     /// DTO para inscripción de materias

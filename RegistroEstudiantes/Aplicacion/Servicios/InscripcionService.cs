@@ -2,7 +2,8 @@
 {
     using Microsoft.AspNetCore.Http;
     using Microsoft.EntityFrameworkCore;
-    using RegistroEstudiantes.Aplicacion.Dtos.Materia;
+    using RegistroEstudiantes.Aplicacion.Dtos.Materia.Entrada;
+    using RegistroEstudiantes.Aplicacion.Dtos.Materia.Salida;
     using RegistroEstudiantes.Aplicacion.Util;
     using RegistroEstudiantes.Dominio.Entidades;
     using RegistroEstudiantes.Dominio.Excepciones;
@@ -18,6 +19,24 @@
         /// </summary>
         /// <param name="dto">Datos necesarios para la inscripcion</param>
         Task InscribirMateriaAsync(DtoEntradaInscribirMateria dto);
+
+        /// <summary>
+        /// Obtiene el listado de materias indicando si el estudiante las tiene matriculadas
+        /// </summary>
+        /// <returns>Retorna la lista de materias</returns>
+        Task<List<DtoSalidaMateria>> ObtenerMateriasAsync();
+
+        /// <summary>
+        /// Obtiene la informacion las materias matriculadas
+        /// </summary>
+        /// <returns>Retorna la lista de materias matriculadas con la informacion de companeros de cada materia</returns>
+        Task<List<DtoSalidaMateriaCompaneros>> ObtenerMisMateriasAsync();
+
+        /// <summary>
+        /// Cancela la inscripción del estudiante autenticado a una materia
+        /// </summary>
+        /// <param name="materiaId">Identificador de la materia</param>
+        Task CancelarInscripcionAsync(int materiaId);
     }
 
     /// <summary>
@@ -104,6 +123,84 @@
             };
 
             _context.EstudianteMaterias.Add(estudianteMateria);
+            await _context.SaveChangesAsync();
+        }
+
+        // Heredado
+        public async Task<List<DtoSalidaMateria>> ObtenerMateriasAsync()
+        {
+            var estudianteId = ObtenerEstudianteIdSesion();
+
+            // Materias matriculadas por el estudiante
+            var materiasMatriculadas = await _context.EstudianteMaterias
+                .Where(em => em.EstudianteId == estudianteId)
+                .Select(em => em.MateriaId)
+                .ToListAsync();
+
+            // Todas las materias con su profesor
+            var materias = await _context.Materias
+                .Select(m => new DtoSalidaMateria
+                {
+                    MateriaId = m.MateriaId,
+                    Nombre = m.Nombre,
+
+                    // Obtener nombre del profesor (único por materia)
+                    Profesor = m.ProfesorMaterias!
+                        .Select(pm => pm.Profesor!.Nombre)
+                        .FirstOrDefault() ?? string.Empty,
+
+                    Matriculada = materiasMatriculadas.Contains(m.MateriaId)
+                })
+                .OrderBy(m => m.Matriculada)
+                .ToListAsync();
+
+            return materias;
+        }
+
+        // Heredado
+        public async Task<List<DtoSalidaMateriaCompaneros>> ObtenerMisMateriasAsync()
+        {
+            var estudianteId = ObtenerEstudianteIdSesion();
+
+            var materias = await _context.EstudianteMaterias
+                .Where(em => em.EstudianteId == estudianteId)
+                .Select(em => em.Materia)
+                .Select(m => new DtoSalidaMateriaCompaneros
+                {
+                    MateriaId = m.MateriaId,
+                    Nombre = m.Nombre,
+                    Matriculada = true,
+                    Profesor = m.ProfesorMaterias!
+                        .Select(pm => pm.Profesor!.Nombre)
+                        .FirstOrDefault() ?? string.Empty,
+
+                    Companeros = m.EstudianteMaterias!
+                        .Where(em => em.EstudianteId != estudianteId)
+                        .Select(em => em.Estudiante!.Nombre)
+                        .Distinct()
+                        .ToList()
+                })
+                .ToListAsync();
+
+            return materias;
+        }
+
+        // Hereado
+        public async Task CancelarInscripcionAsync(int materiaId)
+        {
+            var estudianteId = ObtenerEstudianteIdSesion();
+
+            var inscripcion = await _context.EstudianteMaterias
+                .FirstOrDefaultAsync(em =>
+                    em.EstudianteId == estudianteId &&
+                    em.MateriaId == materiaId);
+
+            if (inscripcion == null)
+            {
+                throw new BadRequestException("El estudiante no está inscrito en la materia.");
+            }
+
+            _context.EstudianteMaterias.Remove(inscripcion);
             await _context.SaveChangesAsync();
         }
 

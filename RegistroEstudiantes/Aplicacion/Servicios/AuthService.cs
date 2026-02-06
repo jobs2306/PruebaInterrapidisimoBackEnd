@@ -4,7 +4,8 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using RegistroEstudiantes.Aplicacion.Dtos.Login;
+using RegistroEstudiantes.Aplicacion.Dtos.Login.Entrada;
+using RegistroEstudiantes.Aplicacion.Dtos.Login.salida;
 using RegistroEstudiantes.Dominio.Excepciones;
 using RegistroEstudiantes.Infraestructura.Data;
 
@@ -82,6 +83,7 @@ namespace RegistroEstudiantes.Aplicacion.Servicios
             return new DtoRespuestaAuth
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
+                Nombre = estudiante.Nombre,
                 Expira = token.ValidTo
             };
         }
