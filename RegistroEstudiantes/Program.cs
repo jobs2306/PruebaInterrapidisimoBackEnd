@@ -14,6 +14,17 @@ builder.Services.AddDbContext<RegistroEstudiantesDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PublicApi", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IInscripcionService, InscripcionService>();
@@ -86,6 +97,8 @@ app.UseSwaggerUI(options =>
 });
 
 app.UseHttpsRedirection();
+
+app.UseCors("PublicApi");
 
 app.UseAuthentication();
 app.UseAuthorization();
