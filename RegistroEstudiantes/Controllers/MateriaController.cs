@@ -45,7 +45,7 @@
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(object), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> InscribirMateria([FromBody] DtoEntradaInscribirMateria dto)
         {
@@ -62,10 +62,6 @@
             catch (NotFoundException ex)
             {
                 return ApiRespuestaUtil.Convertir(ApiRespuestaHttp<string>.RespuestaFallida(ex.Message, HttpStatusCode.NotFound));
-            }
-            catch (UnauthorizedException)
-            {
-                return ApiRespuestaUtil.Convertir(ApiRespuestaHttp<string>.RespuestaFallida("No está autorizado", HttpStatusCode.Unauthorized));
             }
             catch (Exception)
             {
@@ -88,7 +84,7 @@
         [Authorize]
         [HttpGet]
         [ProducesResponseType(typeof(ApiRespuesta<List<DtoSalidaMateria>>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(object), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> ObtenerMaterias()
         {
@@ -98,12 +94,6 @@
 
                 return ApiRespuestaUtil.Convertir(
                     ApiRespuestaHttp<List<DtoSalidaMateria>>.RespuestaExitosa(result)
-                );
-            }
-            catch (UnauthorizedException ex)
-            {
-                return ApiRespuestaUtil.Convertir(
-                    ApiRespuestaHttp<string>.RespuestaFallida(ex.Message, HttpStatusCode.Unauthorized)
                 );
             }
             catch (Exception)
@@ -132,7 +122,7 @@
         [Authorize]
         [HttpGet("mis-materias")]
         [ProducesResponseType(typeof(ApiRespuesta<List<DtoSalidaMateriaCompaneros>>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(object), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> ObtenerMisMateriasConCompaneros()
         {
@@ -142,12 +132,6 @@
 
                 return ApiRespuestaUtil.Convertir(
                     ApiRespuestaHttp<List<DtoSalidaMateriaCompaneros>>.RespuestaExitosa(result)
-                );
-            }
-            catch (UnauthorizedException ex)
-            {
-                return ApiRespuestaUtil.Convertir(
-                    ApiRespuestaHttp<string>.RespuestaFallida(ex.Message, HttpStatusCode.Unauthorized)
                 );
             }
             catch (Exception)
@@ -178,7 +162,7 @@
         [Authorize]
         [HttpDelete("{materiaId}")]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.Unauthorized)]
+        [ProducesResponseType(typeof(object), (int)HttpStatusCode.Unauthorized)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(ApiRespuesta<string>), (int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> CancelarInscripcion(int materiaId)
@@ -195,12 +179,6 @@
             {
                 return ApiRespuestaUtil.Convertir(
                     ApiRespuestaHttp<string>.RespuestaFallida(ex.Message, HttpStatusCode.BadRequest)
-                );
-            }
-            catch (UnauthorizedException ex)
-            {
-                return ApiRespuestaUtil.Convertir(
-                    ApiRespuestaHttp<string>.RespuestaFallida(ex.Message, HttpStatusCode.Unauthorized)
                 );
             }
             catch (Exception)

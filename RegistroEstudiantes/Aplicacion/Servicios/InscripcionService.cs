@@ -221,7 +221,7 @@
 
             if (claim == null)
             {
-                throw new UnauthorizedException("No se pudo obtener el estudiante desde el token.");
+                throw new UnauthorizedException("No se pudo obtener el estudiante de la sesion.");
             }
 
             return int.Parse(claim.Value);
