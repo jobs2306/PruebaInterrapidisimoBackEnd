@@ -1,11 +1,14 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RegistroEstudiantes.Aplicacion.Dtos.Login.Entrada;
 using RegistroEstudiantes.Aplicacion.Dtos.Login.salida;
+using RegistroEstudiantes.Aplicacion.Util;
+using RegistroEstudiantes.Dominio.Entidades;
 using RegistroEstudiantes.Dominio.Excepciones;
 using RegistroEstudiantes.Infraestructura.Data;
 
@@ -21,6 +24,12 @@ namespace RegistroEstudiantes.Aplicacion.Servicios
         /// </summary>
         /// <param name="dto">Dto con los datos para iniciar sesion</param>
         Task<DtoRespuestaAuth> LoginAsync(DtoLogin dto);
+
+        /// <summary>
+        /// Metodo para registrar un estudiante
+        /// </summary>
+        /// <param name="dto">Dto con los datos para registrar el estudiante</param>
+        Task RegistrarAsync(DtoRegistrar dto);
     }
 
     /// <summary>
@@ -40,6 +49,56 @@ namespace RegistroEstudiantes.Aplicacion.Servicios
             _configuration = configuration;
         }
 
+
+        public async Task RegistrarAsync(DtoRegistrar dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Email))
+            {
+                throw new BadRequestException("El email es obligatorio.");
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Nombre))
+            {
+                throw new BadRequestException("El nombre es obligatorio");
+            }
+
+            if (!EsEmailValido(dto.Email))
+            {
+                throw new BadRequestException("El email no tiene un formato válido.");
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Password))
+            {
+                throw new BadRequestException("La contraseña es obligatoria.");
+            }
+
+            if (!EsPasswordValido(dto.Password))
+            {
+                throw new BadRequestException("La contraseña debe cumplir los siguiente requisitos: \n " +
+                    "Debe tener de 8 a 16 caracteres. \n " +
+                    "Debe tener al menos una letra, un número y un simbolo");
+            }
+
+            var existeEmail = await _context.Estudiantes.AnyAsync(e => e.Email == dto.Email);
+
+            if (existeEmail)
+            {
+                throw new BadRequestException("El email ya se encuentra registrado.");
+            }
+
+            var passwordHash = _passwordHasher.HashPassword(null!, dto.Password);
+
+            var estudiante = new Estudiante
+            {
+                Email = dto.Email,
+                Nombre = dto.Nombre,
+                PasswordHash = passwordHash,
+                FechaRegistro = ConvertidorZonaHoraria.ObtenerHoraActualColombia()
+            };
+
+            await _context.Estudiantes.AddAsync(estudiante);
+            await _context.SaveChangesAsync();
+        }
         public async Task<DtoRespuestaAuth> LoginAsync(DtoLogin dto)
         {
             var estudiante = await _context.Estudiantes.FirstOrDefaultAsync(e => e.Email == dto.Email);
@@ -87,5 +146,24 @@ namespace RegistroEstudiantes.Aplicacion.Servicios
                 Expira = token.ValidTo
             };
         }
+        private static bool EsEmailValido(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool EsPasswordValido(string password)
+        {
+            var regex = new Regex(@"^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,16}$");
+            return regex.IsMatch(password);
+        }
     }
 }
+
